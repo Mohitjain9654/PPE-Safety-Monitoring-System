@@ -1,24 +1,26 @@
 # 🦺 PPE Safety Monitoring System
 
-An AI-powered workplace safety monitoring system that automatically detects Personal Protective Equipment (PPE) compliance, monitors worker activities, identifies restricted-zone violations, and visualizes worker movement in a 3D spatial environment.
+🚧 **Work In Progress – Final Year Project**
+
+An AI-powered workplace safety monitoring system that automatically detects Personal Protective Equipment (PPE) compliance, monitors worker activities, identifies safety violations, and visualizes worker movement in a 3D spatial environment.
 
 ---
 
 ## 📌 Overview
 
-Industrial workplaces require strict adherence to safety protocols. Manual monitoring is often inefficient and prone to human error.
+Industrial workplaces require strict adherence to safety protocols. Manual monitoring is often inefficient, time-consuming, and prone to human error.
 
-This project leverages Computer Vision, Pose Estimation, and Real-Time Analytics to monitor workers and detect safety violations automatically.
+This project leverages **Computer Vision**, **Pose Estimation**, **Real-Time Analytics**, and **3D Spatial Monitoring** to automatically monitor workers and identify safety violations.
 
-The system can:
+The system is designed to:
 
 * Detect PPE compliance in real-time
 * Monitor worker pose using human keypoints
 * Generate safety alerts
 * Log violations into a database
 * Display analytics dashboards
-* Visualize workers in a 3D spatial environment
-* Monitor restricted zones and room access
+* Visualize workers in a 3D environment
+* Monitor restricted zones and worker movement
 
 ---
 
@@ -33,9 +35,9 @@ The system can:
 
 ### Human Pose Estimation
 
-* 17-keypoint human skeleton tracking
-* Real-time worker monitoring
-* Pose-based worker visualization
+* 17-Keypoint Human Skeleton Tracking
+* Real-Time Worker Monitoring
+* Pose-Based Worker Visualization
 
 ### Violation Detection
 
@@ -56,18 +58,42 @@ The system can:
 
 * Worker Skeleton Visualization
 * Factory Floor Representation
-* Room-Based Restricted Zones
+* Restricted Zone Visualization
 * Interactive Camera Controls
 
 ### Event Management
 
-* Violation Logging
+* Automated Violation Logging
 * Alert Generation
 * Historical Event Tracking
 
 ---
 
-# 🏗 System Architecture
+## 🚧 Current Development Status
+
+### ✅ Completed
+
+* PPE Detection Module
+* Human Pose Estimation
+* Event Logging System
+* Alert Generation
+* Analytics Dashboard
+* Live Monitoring Dashboard
+* 3D Spatial Visualization
+* Restricted Zone Detection
+
+### 🔄 Currently Under Development
+
+* Dynamic Restricted Zone Creation
+* Gate Definition System
+* Room-Based Access Control
+* Advanced 3D Factory Layout
+* Worker Tracking Improvements
+* Multi-Zone Monitoring
+
+---
+
+## 🏗 System Architecture
 
 ```text
 Video Feed
@@ -89,9 +115,9 @@ Violation Detection Engine
 
 ---
 
-# 🛠 Tech Stack
+## 🛠 Tech Stack
 
-## Backend
+### Backend
 
 * Python
 * FastAPI
@@ -99,12 +125,12 @@ Violation Detection Engine
 * OpenCV
 * Shapely
 
-## AI Models
+### AI Models
 
 * YOLO Pose Estimation
 * YOLO PPE Detection
 
-## Frontend
+### Frontend
 
 * React.js
 * Vite
@@ -114,45 +140,61 @@ Violation Detection Engine
 
 ---
 
-# 📷 Screenshots
+## 📷 Screenshots
 
-## Dashboard
+### Dashboard
 
 ![Dashboard Screenshot](screenshots/dashboard.png)
 
 ---
 
-## PPE Detection
-
-![PPE Detection Screenshot](screenshots/ppe_detection.png)
-
----
-
-## Event Logs
+### Event Logs
 
 ![Event Logs Screenshot](screenshots/event_logs.png)
 
 ---
 
-## Analytics
+### PPE Detection
 
-![Analytics Screenshot](screenshots/analytics.png)
+🚧 **Under Development**
 
----
+Screenshots will be added in future updates.
 
-## 3D Spatial Monitoring
-
-![3D Spatial View](screenshots/spatial_view.png)
+Please check back later.
 
 ---
 
-## Restricted Zone Monitoring
+### Analytics Dashboard
 
-![Restricted Zone Monitoring](screenshots/restricted_zone.png)
+🚧 **Under Development**
+
+Screenshots will be added in future updates.
+
+Please check back later.
 
 ---
 
-# 📂 Project Structure
+### 3D Spatial Monitoring
+
+🚧 **Under Development**
+
+Screenshots will be added in future updates.
+
+Please check back later.
+
+---
+
+### Restricted Zone Monitoring
+
+🚧 **Under Development**
+
+Screenshots will be added in future updates.
+
+Please check back later.
+
+---
+
+## 📂 Project Structure
 
 ```text
 PPE-Safety-Monitoring-System
@@ -176,9 +218,9 @@ PPE-Safety-Monitoring-System
 
 ---
 
-# ⚙ Installation
+## ⚙ Installation
 
-## Clone Repository
+### Clone Repository
 
 ```bash
 git clone https://github.com/Mohitjain9654/PPE-Safety-Monitoring-System.git
@@ -186,7 +228,7 @@ git clone https://github.com/Mohitjain9654/PPE-Safety-Monitoring-System.git
 cd PPE-Safety-Monitoring-System
 ```
 
-## Backend Setup
+### Backend Setup
 
 ```bash
 pip install -r requirements.txt
@@ -194,7 +236,7 @@ pip install -r requirements.txt
 python api.py
 ```
 
-## Frontend Setup
+### Frontend Setup
 
 ```bash
 cd safety-dashboard
@@ -206,21 +248,24 @@ npm run dev
 
 ---
 
-# 🎯 Future Enhancements
+## 🎯 Future Enhancements
 
-* Multi-camera monitoring
-* Worker identification and tracking
-* Depth estimation
-* Digital Twin integration
-* Industrial IoT integration
-* Real-time mobile notifications
-* Advanced restricted-zone management
+* Multi-Camera Monitoring
+* Worker Identification & Tracking
+* Depth Estimation
+* Digital Twin Integration
+* Industrial IoT Integration
+* Mobile Notifications
+* Advanced Restricted-Zone Management
+* Real-Time Factory Mapping
 
 ---
 
-# 👨‍💻 Author
+## 👨‍💻 Project Team
 
-**Mohit Jain**
+* **Mohit Jain**
+* **Siddhi Vats**
+* **Raunak Pratap Singh**
 
 Final Year Project
 
@@ -228,6 +273,7 @@ Computer Science Engineering
 
 ---
 
-# ⭐ Support
+## ⭐ Support
 
 If you find this project useful, consider giving it a star on GitHub.
+
