@@ -77,15 +77,15 @@ The system is designed to:
 * Human Pose Estimation
 * Event Logging System
 * Alert Generation
-* Analytics Dashboard
 * Live Monitoring Dashboard
-* 3D Spatial Visualization
-* Restricted Zone Detection
 
 ### 🔄 Currently Under Development
 
 * Dynamic Restricted Zone Creation
+* Analytics Dashboard
+* 3D Spatial Visualization
 * Gate Definition System
+* Restricted Zone Detection
 * Room-Based Access Control
 * Advanced 3D Factory Layout
 * Worker Tracking Improvements
