@@ -1,0 +1,167 @@
+PPE/
+│
+├── Backend
+│   │
+│   ├── api.py
+│   │     ├── /start-detection
+│   │     ├── /video_feed
+│   │     ├── /keypoints
+│   │     ├── /zones
+│   │     ├── /events
+│   │     ├── /stats
+│   │     └── /latest
+│   │
+│   ├── ppe_main.py
+│   │     YOLO + Pose Detection
+│   │
+│   ├── event_log.py
+│   │     SQLite Logging
+│   │
+│   └── ppe_events.db
+│
+│
+└──────────── Frontend (React) ───────────────────────────────
+
+src/
+
+│
+├── App.jsx
+│     Main Dashboard
+│
+├── components/
+│     │
+│     ├── Sidebar.jsx
+│     ├── VideoPanel.jsx
+│     ├── EventLog.jsx
+│     ├── LatestAlert.jsx
+│     └── Analytics.jsx
+│
+│
+└── threeD/
+      │
+      ├── FactoryScene.jsx
+      │      ThreeJS Canvas
+      │
+      ├── factory/
+      │      │
+      │      ├── Factory.jsx        ← Main 3D Scene
+      │      ├── FactoryFloor.jsx
+      │      ├── FactoryWalls.jsx
+      │      └── FactoryGrid.jsx
+      │
+      │
+      ├── workers/
+      │      │
+      │      ├── WorkerPosition.jsx
+      │      ├── WorkerSkeleton.jsx
+      │      ├── WorkerTrail.jsx
+      │      └── WorkerUtils.js
+      │
+      │
+      ├── rooms/
+      │      │
+      │      ├── Room.jsx
+      │      ├── PolygonRoom.jsx
+      │      ├── RoomLabel.jsx
+      │      └── RoomUtils.js
+      │
+      │
+      ├── gates/
+      │      │
+      │      ├── Gate.jsx
+      │      └── GateUtils.js
+      │
+      │
+      ├── hooks/
+      │      │
+      │      ├── useWorkers.js
+      │      └── useZones.js
+      │
+      │
+      ├── services/
+      │      │
+      │      ├── keypointService.js
+      │      └── zoneService.js
+      │
+      │
+      ├── monitoring/
+      │      │
+      │      ├── ZoneMonitor.js
+      │      ├── EntryDetector.js
+      │      └── ViolationEngine.js
+      │
+      │
+      └── utils/
+             │
+             ├── map2Dto3D.js
+             ├── pointInPolygon.js
+             └── geometryUtils.js
+
+
+
+
+Data Flow
+Video
+   │
+   ▼
+api.py
+   │
+   ▼
+ppe_main.py
+   │
+   ├── PPE Detection
+   ├── Pose Detection
+   └── latest_keypoints
+            │
+            ▼
+      /keypoints API
+            │
+            ▼
+     useWorkers.js
+            │
+            ▼
+      Factory.jsx
+            │
+            ▼
+ WorkerPosition.jsx
+            │
+            ▼
+       3D Worker
+
+
+Zone Flow
+VideoPanel.jsx
+      │
+Draw Polygon
+      │
+POST /set-zone
+      │
+api.py
+      │
+restricted_zones
+      │
+GET /zones
+      │
+useZones.js
+      │
+Factory.jsx
+      │
+PolygonRoom.jsx
+      │
+3D Restricted Zone
+
+
+Event Flow
+
+YOLO
+   │
+Violation
+   │
+event_log.py
+   │
+SQLite
+   │
+GET /events
+   │
+EventLog.jsx
+

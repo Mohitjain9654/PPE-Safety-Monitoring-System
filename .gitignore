@@ -1,18 +1,31 @@
+# Python
 __pycache__/
-*.pyc
-
-node_modules/
-dist/
-
-.env
+*.py[cod]
 venv/
 .venv/
 
-*.db
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
 
+# Frontend
+node_modules/
+dist/
+
+# ML models and datasets
 *.pt
-
-.DS_Store
 *.mp4
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# System / IDE
+.DS_Store
 .vscode/
-.ipynb
+
+# Jupyter
+.ipynb_checkpoints/
+settings.json

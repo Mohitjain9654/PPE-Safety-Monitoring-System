@@ -1,94 +1,452 @@
 import sqlite3
 import json
-from datetime import datetime
 
 DB_PATH = "ppe_events.db"
 
+
+# =========================================================
+# DATABASE INITIALIZATION
+# =========================================================
+
 def init_db():
-    """Create table if it doesn't exist — call once at startup"""
+    """
+    Create the events table if it does not exist.
+
+    camera_id is used to identify which camera generated
+    the event.
+    """
+
     conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS events (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp   TEXT NOT NULL,
+            camera_id   TEXT,
             zone        TEXT NOT NULL,
             severity    TEXT NOT NULL,
-            violations  TEXT NOT NULL,   -- stored as JSON string
+            violations  TEXT NOT NULL,
             confidence  REAL NOT NULL,
             message     TEXT NOT NULL
         )
     """)
+
     conn.commit()
+
+    # -----------------------------------------------------
+    # DATABASE MIGRATION
+    # -----------------------------------------------------
+    # If an older database already exists without camera_id,
+    # add the column automatically.
+
+    cursor.execute("""
+        PRAGMA table_info(events)
+    """)
+
+    columns = [
+        row[1]
+        for row in cursor.fetchall()
+    ]
+
+    if "camera_id" not in columns:
+
+        cursor.execute("""
+            ALTER TABLE events
+            ADD COLUMN camera_id TEXT
+        """)
+
+        conn.commit()
+
     conn.close()
+
+
+# =========================================================
+# LOG EVENT
+# =========================================================
 
 def log_event(alert: dict):
     """
-    Takes the dict returned by generate_alert() and saves it to DB.
-    Also prints to console so you can still see it.
+    Save a detection event into SQLite.
+
+    Expected alert:
+
+    {
+        "timestamp": "...",
+        "zone": "...",
+        "severity": "...",
+        "violations": [...],
+        "confidence": 0.92,
+        "message": "...",
+        "camera_id": "camera_xxxxx"
+    }
     """
+
     conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
+
+    camera_id = alert.get(
+        "camera_id",
+        "unknown"
+    )
+
     cursor.execute("""
-        INSERT INTO events (timestamp, zone, severity, violations, confidence, message)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO events (
+            timestamp,
+            camera_id,
+            zone,
+            severity,
+            violations,
+            confidence,
+            message
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (
+
         alert["timestamp"],
+
+        camera_id,
+
         alert["zone"],
+
         alert["severity"],
-        json.dumps(alert["violations"]),   # list → JSON string
+
+        json.dumps(
+            alert["violations"]
+        ),
+
         alert["confidence"],
+
         alert["message"]
+
     ))
+
     conn.commit()
+
     conn.close()
 
-    # Console print (will be replaced by dashboard push later)
-    print(f"[{alert['severity'].upper()}] {alert['message']} | Confidence: {alert['confidence']}")
+    print(
+        f"[{alert['severity'].upper()}] "
+        f"[Camera: {camera_id}] "
+        f"{alert['message']} | "
+        f"Confidence: {alert['confidence']}"
+    )
 
 
-def get_recent_events(limit: int = 50) -> list:
-    """
-    Fetch last N events — dashboard will call this later
-    Returns list of dicts
-    """
+# =========================================================
+# GET RECENT EVENTS
+# =========================================================
+
+def get_recent_events(
+    limit: int = 50
+) -> list:
+
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row   # so we get dict-like rows
+
+    conn.row_factory = sqlite3.Row
+
     cursor = conn.cursor()
+
     cursor.execute("""
-        SELECT * FROM events
+        SELECT *
+        FROM events
         ORDER BY id DESC
         LIMIT ?
     """, (limit,))
+
     rows = cursor.fetchall()
+
     conn.close()
 
     result = []
+
     for row in rows:
+
         result.append({
-            "id":         row["id"],
-            "timestamp":  row["timestamp"],
-            "zone":       row["zone"],
-            "severity":   row["severity"],
-            "violations": json.loads(row["violations"]),  # JSON string → list
-            "confidence": row["confidence"],
-            "message":    row["message"]
+
+            "id":
+                row["id"],
+
+            "timestamp":
+                row["timestamp"],
+
+            "camera_id":
+                row["camera_id"],
+
+            "zone":
+                row["zone"],
+
+            "severity":
+                row["severity"],
+
+            "violations":
+                json.loads(
+                    row["violations"]
+                ),
+
+            "confidence":
+                row["confidence"],
+
+            "message":
+                row["message"]
+
         })
+
     return result
 
 
+# =========================================================
+# VIOLATION STATS
+# =========================================================
+
 def get_violation_stats() -> dict:
     """
-    Returns violation frequency per type — Analytics will use this later
+    Overall violation frequency.
+
+    Example:
+
+    {
+        "no_helmet": 12,
+        "no_vest": 8,
+        "no_gloves": 5
+    }
     """
+
     conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
+
     cursor.execute("""
-        SELECT severity, COUNT(*) as count
+        SELECT violations
         FROM events
-        GROUP BY severity
     """)
+
     rows = cursor.fetchall()
+
     conn.close()
 
-    return {row[0]: row[1] for row in rows}
+    stats = {}
+
+    for row in rows:
+
+        try:
+            violations = json.loads(
+                row[0]
+            )
+
+        except Exception:
+            violations = []
+
+        for violation in violations:
+
+            stats[violation] = (
+                stats.get(
+                    violation,
+                    0
+                )
+                + 1
+            )
+
+    return stats
+
+
+# =========================================================
+# CAMERA-WISE STATS
+# =========================================================
+
+def get_camera_stats() -> dict:
+    """
+    Returns number of violation events
+    generated by each camera.
+
+    Example:
+
+    {
+        "camera_123": 34,
+        "camera_456": 12
+    }
+    """
+
+    conn = sqlite3.connect(DB_PATH)
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT camera_id, COUNT(*)
+        FROM events
+        GROUP BY camera_id
+        ORDER BY COUNT(*) DESC
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return {
+        row[0] or "unknown": row[1]
+        for row in rows
+    }
+
+
+# =========================================================
+# CAMERA + VIOLATION STATS
+# =========================================================
+
+def get_camera_violation_stats() -> dict:
+    """
+    Returns violation breakdown for every camera.
+
+    Example:
+
+    {
+        "camera_123": {
+            "no_helmet": 10,
+            "no_vest": 5
+        }
+    }
+    """
+
+    conn = sqlite3.connect(DB_PATH)
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT camera_id, violations
+        FROM events
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    result = {}
+
+    for camera_id, violations_json in rows:
+
+        camera_id = (
+            camera_id
+            or "unknown"
+        )
+
+        if camera_id not in result:
+
+            result[camera_id] = {}
+
+        try:
+
+            violations = json.loads(
+                violations_json
+            )
+
+        except Exception:
+
+            violations = []
+
+        for violation in violations:
+
+            result[camera_id][violation] = (
+                result[camera_id].get(
+                    violation,
+                    0
+                )
+                + 1
+            )
+
+    return result
+
+# import sqlite3
+# import json
+# from datetime import datetime
+
+# DB_PATH = "ppe_events.db"
+
+# def init_db():
+#     """Create table if it doesn't exist — call once at startup"""
+#     conn = sqlite3.connect(DB_PATH)
+#     cursor = conn.cursor()
+#     cursor.execute("""
+#         CREATE TABLE IF NOT EXISTS events (
+#             id          INTEGER PRIMARY KEY AUTOINCREMENT,
+#             timestamp   TEXT NOT NULL,
+#             zone        TEXT NOT NULL,
+#             severity    TEXT NOT NULL,
+#             violations  TEXT NOT NULL,   -- stored as JSON string
+#             confidence  REAL NOT NULL,
+#             message     TEXT NOT NULL
+#         )
+#     """)
+#     conn.commit()
+#     conn.close()
+
+# def log_event(alert: dict):
+#     """
+#     Takes the dict returned by generate_alert() and saves it to DB.
+#     Also prints to console so you can still see it.
+#     """
+#     conn = sqlite3.connect(DB_PATH)
+#     cursor = conn.cursor()
+#     cursor.execute("""
+#         INSERT INTO events (timestamp, zone, severity, violations, confidence, message)
+#         VALUES (?, ?, ?, ?, ?, ?)
+#     """, (
+#         alert["timestamp"],
+#         alert["zone"],
+#         alert["severity"],
+#         json.dumps(alert["violations"]),   # list → JSON string
+#         alert["confidence"],
+#         alert["message"]
+#     ))
+#     conn.commit()
+#     conn.close()
+
+#     # Console print (will be replaced by dashboard push later)
+#     print(f"[{alert['severity'].upper()}] {alert['message']} | Confidence: {alert['confidence']}")
+
+
+# def get_recent_events(limit: int = 50) -> list:
+#     """
+#     Fetch last N events — dashboard will call this later
+#     Returns list of dicts
+#     """
+#     conn = sqlite3.connect(DB_PATH)
+#     conn.row_factory = sqlite3.Row   # so we get dict-like rows
+#     cursor = conn.cursor()
+#     cursor.execute("""
+#         SELECT * FROM events
+#         ORDER BY id DESC
+#         LIMIT ?
+#     """, (limit,))
+#     rows = cursor.fetchall()
+#     conn.close()
+
+#     result = []
+#     for row in rows:
+#         result.append({
+#             "id":         row["id"],
+#             "timestamp":  row["timestamp"],
+#             "zone":       row["zone"],
+#             "severity":   row["severity"],
+#             "violations": json.loads(row["violations"]),  # JSON string → list
+#             "confidence": row["confidence"],
+#             "message":    row["message"]
+#         })
+#     return result
+
+
+# def get_violation_stats() -> dict:
+#     """
+#     Returns violation frequency per type — Analytics will use this later
+#     """
+#     conn = sqlite3.connect(DB_PATH)
+#     cursor = conn.cursor()
+#     cursor.execute("""
+#         SELECT severity, COUNT(*) as count
+#         FROM events
+#         GROUP BY severity
+#     """)
+#     rows = cursor.fetchall()
+#     conn.close()
+
+#     return {row[0]: row[1] for row in rows}
