@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <img src="[https://img.shields.io/badge/Project-Final%20Year%20Project-blue](https://github.com/Mohitjain9654/PPE-Safety-Monitoring-System/blob/main/screenshot/Screenshot%202026-09-20%20at%2021.00.02.png)" />
+  <img src="https://img.shields.io/badge/Project-Final%20Year%20Project-blue" />
   <img src="https://img.shields.io/badge/Python-FastAPI-green" />
   <img src="https://img.shields.io/badge/Frontend-React%20%7C%20Vite-blue" />
   <img src="https://img.shields.io/badge/AI-YOLO-orange" />
@@ -412,7 +412,7 @@ visualization modules continue to evolve.
 
 ### Dashboard
 
-<!-- Add dashboard screenshot here -->
+![Dashboard Screenshot](screenshot/dashboard.png)
 
 ### PPE Detection
 
